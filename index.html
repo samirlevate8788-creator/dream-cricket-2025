@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dream Cricket 2025 - 3D Realistic Cricket Simulator</title>
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Canvas Confetti for Boundary Celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Modern Import Map for Three.js ES Modules -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D Canvas Rendering Viewport -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD Overlay -->
+  <div id="hud-overlay">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <!-- Live Match Scoreboard -->
+      <div class="match-info-card hud-interactive">
+        <div class="team-badge">
+          <div class="team-flag">IND</div>
+          <span class="team-name">INDIA</span>
+        </div>
+
+        <div class="score-display">
+          <span id="score-runs" class="score-main">0</span>
+          <span id="score-wickets" class="score-wickets">/0</span>
+        </div>
+
+        <div id="overs-text" class="overs-badge">OV 0.0</div>
+
+        <div class="target-info">
+          <div>TARGET: <span id="target-score">18</span></div>
+          <div id="target-req" class="target-highlight">18 off 6 balls</div>
+        </div>
+      </div>
+
+      <!-- Speed Radar & Controls -->
+      <div class="top-right-group hud-interactive">
+        <div class="radar-card">
+          <span class="radar-title">⚡ SPEED RADAR</span>
+          <span id="radar-speed" class="radar-speed">146.4 KM/H</span>
+          <span id="radar-type" class="radar-type">FAST OUTSWINGER</span>
+        </div>
+
+        <button id="btn-camera" class="icon-btn" title="Toggle Camera Angle [C]">🎥</button>
+        <button id="btn-sound" class="icon-btn" title="Toggle Sound [M]">🔊</button>
+        <button id="btn-stats" class="icon-btn" title="Match Statistics & Wagon Wheel">📊</button>
+      </div>
+    </div>
+
+    <!-- CENTER ANNOUNCEMENT BANNERS -->
+    <div class="center-banner-container">
+      <div id="banner-alert" class="banner-alert">MAXIMUM 6!</div>
+      <div id="banner-timing" class="banner-timing timing-perfect">PERFECT TIMING • 148 KM/H</div>
+    </div>
+
+    <!-- BOTTOM BROADCAST BAR -->
+    <div class="bottom-bar">
+      <!-- Striker & Bowler Card -->
+      <div class="player-strip-card hud-interactive">
+        <div class="player-info">
+          <span class="player-role">🏏 STRIKER</span>
+          <span id="striker-name" class="player-name">V. Kohli*</span>
+          <span id="striker-stats" class="player-stats">0 <span>(0b • 0x4 • 0x6)</span></span>
+        </div>
+
+        <div class="player-info">
+          <span class="player-role">⚡ BOWLER</span>
+          <span id="bowler-name" class="player-name">P. Cummins</span>
+          <span id="bowler-stats" class="player-stats">0/0 <span>(0.0 ov)</span></span>
+        </div>
+      </div>
+
+      <!-- Over Timeline (Ball-by-ball) -->
+      <div class="over-timeline-container">
+        <div id="timeline-balls" class="timeline-balls">
+          <div class="ball-pip dot">•</div>
+          <div class="ball-pip dot">•</div>
+          <div class="ball-pip dot">•</div>
+          <div class="ball-pip dot">•</div>
+          <div class="ball-pip dot">•</div>
+          <div class="ball-pip dot">•</div>
+        </div>
+      </div>
+
+      <!-- Shot Controls & Joystick Panel -->
+      <div class="controls-panel hud-interactive">
+        <!-- 8-Way Direction Pad -->
+        <div class="shot-joystick-grid">
+          <button class="dir-btn" data-dir="COVER_DRIVE" title="Cover Drive (W+D)">↖</button>
+          <button class="dir-btn active" data-dir="STRAIGHT" title="Straight Drive (W / Up)">⬆</button>
+          <button class="dir-btn" data-dir="PULL" title="Pull Shot (A / Left)">↗</button>
+
+          <button class="dir-btn" data-dir="CUT" title="Square Cut (D / Right)">⬅</button>
+          <button class="dir-btn center-defend" data-dir="STRAIGHT" title="Defend">MID</button>
+          <button class="dir-btn" data-dir="PULL" title="On Drive">➡</button>
+
+          <button class="dir-btn" data-dir="CUT" title="Late Cut">↙</button>
+          <button class="dir-btn" data-dir="GLANCE" title="Leg Glance (S / Down)">⬇</button>
+          <button class="dir-btn" data-dir="GLANCE" title="Fine Leg">↘</button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button id="btn-hit" class="action-btn btn-hit">
+            SWING
+            <span>[ENTER / CLICK]</span>
+          </button>
+
+          <button id="btn-loft" class="action-btn btn-loft">
+            LOFT
+            <span>GROUND</span>
+          </button>
+
+          <button id="btn-run" class="action-btn btn-run">
+            RUN
+            <span>[R]</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MENU MODAL -->
+  <div id="menu-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h1 class="game-title">DREAM CRICKET 2025</h1>
+      <p class="game-subtitle">Next-Gen 3D International Cricket Simulator</p>
+
+      <div class="mode-selector">
+        <div class="mode-btn selected" data-mode="SUPER_OVER">
+          <div>
+            <div class="mode-name">⚡ SUPER OVER BLITZ</div>
+            <div class="mode-desc">Chase 18 runs off 6 deliveries under high-voltage stadium floodlights!</div>
+          </div>
+          <span style="font-size: 20px;">🏆</span>
+        </div>
+
+        <div class="mode-btn" data-mode="T20_3OVER">
+          <div>
+            <div class="mode-name">🏏 3-OVER T20 THRILLER</div>
+            <div class="mode-desc">Chase a competitive target of 46 runs against international pacers & spinners.</div>
+          </div>
+          <span style="font-size: 20px;">🔥</span>
+        </div>
+
+        <div class="mode-btn" data-mode="NETS">
+          <div>
+            <div class="mode-name">🎯 NET PRACTICE ARCADE</div>
+            <div class="mode-desc">Master your shot timing, sweet spot placement, and reading bowling variations.</div>
+          </div>
+          <span style="font-size: 20px;">⚡</span>
+        </div>
+      </div>
+
+      <button id="start-match-btn" class="start-btn">PLAY MATCH NOW</button>
+
+      <div class="instructions-card">
+        <div><kbd>W</kbd> / <kbd>↑</kbd> : Straight Drive</div>
+        <div><kbd>A</kbd> / <kbd>←</kbd> : Pull / Leg Glance</div>
+        <div><kbd>D</kbd> / <kbd>→</kbd> : Cover Drive / Cut</div>
+        <div><kbd>SPACE</kbd> : Toggle Lofted (Six)</div>
+        <div><kbd>ENTER</kbd> / <kbd>Click</kbd> : Bat Swing</div>
+        <div><kbd>R</kbd> : Take Run | <kbd>C</kbd> : Camera View</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS & WAGON WHEEL MODAL -->
+  <div id="stats-modal" class="modal-overlay hidden">
+    <div class="modal-card stats-modal">
+      <h2 class="game-title" style="font-size: 38px;">HAWK-EYE & WAGON WHEEL</h2>
+      <p class="game-subtitle">Shot Placement & Ball Trajectory Analysis</p>
+
+      <canvas id="wagon-wheel-canvas" class="wagon-wheel-canvas" width="240" height="240"></canvas>
+
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 13px; font-weight: 700; margin-bottom: 20px;">
+        <span style="color: #ffd700;">● Sixes (Yellow)</span>
+        <span style="color: #00f0ff;">● Fours (Cyan)</span>
+        <span style="color: #22c55e;">● Boundary Line</span>
+      </div>
+
+      <button id="close-stats-btn" class="start-btn" style="padding: 10px; font-size: 20px;">CLOSE ANALYSIS</button>
+    </div>
+  </div>
+
+  <!-- Main Application Script -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

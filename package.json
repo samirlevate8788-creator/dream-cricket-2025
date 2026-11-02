@@ -1,0 +1,22 @@
+{
+  "name": "dream-cricket-2025",
+  "version": "1.0.0",
+  "description": "Dream Cricket 2025 - 3D Realistic Cricket Simulator built with Three.js & Web Audio API",
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "cricket",
+    "3d-game",
+    "threejs",
+    "webgl",
+    "dream-cricket",
+    "sports-simulation"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}
